@@ -6,11 +6,13 @@ class Doctrine_Commentable extends Doctrine_Record_Generator
                                 'commentAlias'      => 'Comments',
                                 'className'         => '%CLASS%Comment',
                                 'local'             => 'id',
-                                'generateFiles'     => false,
+                                'generateFiles'     => true,
                                 'table'             => false,
                                 'pluginTable'       => false,
                                 'children'          => array(),
-                                'commentable'       => array());
+                                'builderOptions'    => array('BaseClassesDirectory' => 'base'));
+                                
+    protected $_commentables = array();
 
     /**
      * __construct
@@ -20,21 +22,21 @@ class Doctrine_Commentable extends Doctrine_Record_Generator
      */
     public function __construct(array $options = array())
     {
+      $dispatcher = ProjectConfiguration::getActive()->getEventDispatcher();
+      $dispatcher->connect('commentable.add_commentable_class', array($this, 'getCommentables'));
+      
+      $options['generatePath'] = sfConfig::get('sf_lib_dir').'/model/doctrine/sfCommentsPlugin';
       $this->_options = Doctrine_Lib::arrayDeepMerge($this->_options, $options);
     }
 
     public function setTableDefinition()
     {
       $this->hasColumn('comment_id', 'integer', null, array('primary' => true));
-      // $this->hasColumn($this->_options['commentable']['name'], 'integer', null, array('primary' => true));
     }
 
     public function buildRelation()
     {
-      if (!isset($this->_options['commentable']['name'])) 
-      {
-        $this->_options['commentable']['name'] = sfInflector::tableize($this->getOption('table')->getComponentName().'Id');
-      }
+      $this->addCommentable($this->getOption('table')->getComponentName());
       
       // Set index on Comment Table
       $options = array('local'    => 'comment_id',
@@ -49,15 +51,37 @@ class Doctrine_Commentable extends Doctrine_Record_Generator
                        'foreign'  => 'comment_id',
                        'refClass' => $this->getOption('table')->getComponentName() . $this->_options['commentClass']);
       
-      $this->getOption('table')->bind(array($this->_options['commentClass'] . ' as ' . $this->_options['commentAlias'], $options), Doctrine_Relation::MANY);
+      $this->getOption('table')->bind(array($this->_options['commentClass'] . ' as ' . $this->_options['commentAlias'], $options), Doctrine_Relation::ONE);
 
       parent::buildRelation();
     }
-
-    public function setUp()
+    
+    public function getCommentables(sfEvent $event)
     {
-        $comment = new Doctrine_Commentable_Comment();
-        $comment->setOption('parent', $this);
-        $this->addChild($comment);
+      $event->setReturnValue($this->_commentables);
+    }
+    public function addCommentable($class)
+    {
+      $this->_commentables[] = $class;
+    }
+    /**
+     * generateClass
+     *
+     * generates the class definition for plugin class
+     *
+     * @param array $definition  Definition array defining columns, relations and options
+     *                           for the model
+     * @return void
+     */
+    public function generateClass(array $definition = array())
+    {
+      $definition['actAs'] = array('Comment');
+      return parent::generateClass($definition);
+    }
+
+    public function notifyNewCommentableClass($class)
+    {
+      $dispatcher = ProjectConfiguration::getActive()->getEventDispatcher();
+      $dispatcher->notify(new sfEvent($this, 'commentable.add_commentable_class', array('commentable' => $class)));
     }
 }

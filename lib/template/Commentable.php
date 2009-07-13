@@ -4,28 +4,6 @@
 
 class Doctrine_Template_Commentable extends Doctrine_Template
 {
-  public function __construct(array $options = array())
-  {
-      $this->_plugin = new Doctrine_Commentable($options);
-  }
-
-  public function setUp()
-  {
-      $this->_plugin->initialize($this->_table);
-  }
-}
-
-
-// 
-//  Commentable.php
-//  csActAsCommentablePlugin
-//  
-//  Created by Brent Shaffer on 2009-01-29.
-//  Copyright 2008 Centre{source}. Al9 rights reserved.
-// 
-
-class Doctrine_Template_Commentable_Old extends Doctrine_Template
-{    
   /**
    * Array of Commentable options
    */  
@@ -42,43 +20,37 @@ class Doctrine_Template_Commentable_Old extends Doctrine_Template
                               'refClass' =>   false,
   ));
 
-
-  /**
-   * Constructor for Commentable Template
-   *
-   * @param array $options 
-   * @return void
-   * @author Brent Shaffer
-   */
   public function __construct(array $options = array())
   {
-    $this->_options = Doctrine_Lib::arrayDeepMerge($this->_options, $options);
+    $this->_options = Doctrine_Lib::arrayDeepMerge($this->_options, $options);    
+    $this->_plugin = new Doctrine_Commentable($options);
   }
 
-
-  public function setup()
+  public function setUp()
   {
-    $refClass = $this->_options['relations']['refClass'];
-    $refClass = $refClass or get_class($this->getInvoker()).'Comment';
-    $linkTable = new Doctrine_Table();
+    $this->_plugin->initialize($this->_table);
+    // $generatorManager = new sfGeneratorManager(ProjectConfiguration::getApplicationConfiguration('backend', 'dev', true));
+    // $generatorManager->generate('sfDoctrineFormGenerator', array(
+    //     'connection'     => 'doctrine',
+    //     'model_dir_name' => 'model',
+    //     'form_dir_name'  => 'form',
+    // ));
+    // $generator = new CommentFormGenerator($generatorManager);
+    // $generator->generate(array('connection' => 'doctrine'));
   }
+}
 
 
-  /**
-   * Set table definition for Commentable behavior
-   *
-   * @return void
-   * @author Brent Shaffer
-   */
-  public function setTableDefinition()
-  {
-    $name = 'comment_root_id';
-    $type = 'integer';
-    $length = 8;
-    $options = array();
-    $this->hasColumn($name, $type, $length, $options);
-    $this->addListener(new Doctrine_Template_Listener_Commentable($this->_options));
-  }
+// 
+//  Commentable.php
+//  csActAsCommentablePlugin
+//  
+//  Created by Brent Shaffer on 2009-01-29.
+//  Copyright 2008 Centre{source}. Al9 rights reserved.
+// 
+
+class Doctrine_Template_Commentable_Old extends Doctrine_Template
+{    
   
   public function addComment($comment, $root_id = null)
   {

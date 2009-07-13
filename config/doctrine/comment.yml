@@ -1,18 +1,18 @@
-# ---
-# Comment: 
-#   actAs:
-#     NestedSet:
-#       hasManyRoots: true
-#       rootColumnName: object_id
-#     Timestampable:
-#   columns:
-#     id:
-#       type: integer(4)
-#       primary: true
-#       autoincrement: true
-#     object_id:
-#       type:     integer(4)
-#     body:
-#       type:     clob
-#     user_id:
-#       type:     integer
+---
+Comment: 
+  actAs:
+    NestedSet:
+      hasManyRoots: true
+      rootColumnName: root_id
+    Timestampable:
+  columns:
+    id:
+      type: integer
+      primary: true
+      autoincrement: true
+    subject:
+      type:     string(255)
+    body:
+      type:     clob
+    user_id:
+      type:     integer
