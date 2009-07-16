@@ -6,7 +6,8 @@
   <div id="comment_content">
     <div id="author_and_date">
 		<?php $poster = $comment->hasCommenter() ? $comment->getCommenter() : 'Anonymous' ?>
-      posted by <?php echo $poster ?> <?php echo distance_of_time_in_words(strtotime($comment->getCreatedAt())); ?> ago.
+		<?php $posted_by = $comment['Commenter']['website'] ? link_to($poster, $comment['Commenter']['website']) : $poster ?>
+      posted by <?php echo $posted_by ?> <?php echo distance_of_time_in_words(strtotime($comment->getCreatedAt())); ?> ago.
     </div>
   
     <div id="body">
@@ -14,8 +15,6 @@
     </div>
   
     <div id="links">
-      <?php echo link_to_edit_comment('Edit', $record, $comment); ?> | 
-      <?php echo link_to_delete_comment('Delete', $record, $comment); ?> | 
       <?php echo link_to_add_new_comment('Reply', $record, $comment); ?>
     </div>
 
@@ -25,6 +24,4 @@
       <?php echo get_partial('csComments/comments', array('comments' => $comment->getNode()->getChildren(), 'record' => $record)); ?>
     <?php endif ?>
   </div>
-
-  <br/>
 </li>

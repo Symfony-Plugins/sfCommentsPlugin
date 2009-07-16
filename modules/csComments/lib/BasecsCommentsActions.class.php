@@ -55,63 +55,6 @@ class BasecsCommentsActions extends sfActions
     $this->record->addComment($this->comment, $parent_id);
     $this->record->save();
   }
-  
-  /**
-   * handleErrorDo_add_new_comment 
-   * 
-   * @access public
-   * @return void
-   */
-  public function handleErrorAdd()
-  {
-    $this->getUser()->setFlash('error', 'An error occurred adding your comment!');
-
-    $name = $this->getRequestParameter('comment_id') ? '#comment_'.$this->getRequestParameter('comment_id'):'#comments';
-
-    $this->redirect($this->getRequestParameter('return_uri').$name);
-  }
-
-  /**
-   * executeEdit_comment 
-   * 
-   * @access public
-   * @return void
-   */
-  public function executeEdit_comment()
-  {
-    $comment_id = $this->getRequestParameter('comment_id');
-    $this->comment = Doctrine::getTable('Comment')->find($comment_id);
-  }
-
-  /**
-   * executeDo_edit_comment 
-   * 
-   * @access public
-   * @return void
-   */
-  public function executeDoEdit()
-  {
-    $comment_id = $this->getRequestParameter('comment_id');
-    $comment = Doctrine::getTable('Comment')->find($comment_id);
-    $comment->setBody($this->getRequestParameter('body'));
-    $comment->save();
-
-    $this->getUser()->setFlash('notice', 'Your comment was successfully modified!');
-    $this->redirect($this->getRequestParameter('return_uri').'#comment_'.$comment->getId());
-  }
-
-  /**
-   * handleErrorDo_edit_comment 
-   * 
-   * @access public
-   * @return void
-   */
-  public function handleErrorDoEdit()
-  {
-    $this->getUser()->setFlash('error', 'An error occurred editing your comment!');
-
-    $name = $this->getRequestParameter('comment_id') ? '#comment_'.$this->getRequestParameter('comment_id'):'#comments';
-  }
 
   /**
    * executeDo_delete_comment 
@@ -130,16 +73,5 @@ class BasecsCommentsActions extends sfActions
 
     $this->getUser()->setFlash('notice', 'Comment was successfully deleted!');
     $this->redirect($this->getRequestParameter('return_uri').'#comments');
-  }
-  public function isEmpty($form)
-  {
-    foreach ($form->getValues() as $value) 
-    {
-      if(trim($value) != '')
-      {
-        return false;
-      }
-    }
-    return true;
   }
 }

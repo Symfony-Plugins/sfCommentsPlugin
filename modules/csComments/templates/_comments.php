@@ -6,6 +6,6 @@
   		 <?php include_partial('csComments/comment_row', array('comment' => $comment, 'record' => $record)) ?>
 		  <?php endif ?>
 		<?php endforeach ?>
-	<ul>
+	</ul>
 <?php endif;?>
     

@@ -8,7 +8,7 @@ abstract class PluginComment extends BaseComment
   // Temporary function, commenter relationships not yet implemented
   public function hasCommenter()
   {
-    return false;
+    return $this['Commenter']['username'] != '';
   }
 
   // ===================================

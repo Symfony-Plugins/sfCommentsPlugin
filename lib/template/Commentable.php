@@ -94,5 +94,9 @@ class Doctrine_Template_Commentable extends Doctrine_Template
   public function setUp()
   {
     $this->_plugin->initialize($this->_table);
+    
+    $dispatcher = ProjectConfiguration::getActive()->getEventDispatcher();
+    $event = new sfEvent($this, 'plugin.add_settings');    
+    $dispatcher->notify($event);
   }
 }
