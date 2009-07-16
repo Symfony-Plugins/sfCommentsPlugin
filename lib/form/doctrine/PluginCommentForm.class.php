@@ -9,10 +9,23 @@
  */
 abstract class PluginCommentForm extends BaseCommentForm
 {
-	public function setUp()
-	{
-		parent::setUp();
-    $this->widgetSchema['user_id'] = new sfWidgetFormDoctrineSelect(array('model' => 'Commenter', 'add_empty' => 'Anonymous'));
-		unset($this['created_at'], $this['updated_at'], $this['approved_at'], $this['approved_by'], $this['lft'], $this['rgt'], $this['level'], $this['object_id'], $this['object_class']);
-	}
+  public function configure()
+  {
+    parent::configure();
+    
+    $this->setWidgets(array(
+        'body'      => new sfWidgetFormTextarea(),
+      ));
+      
+    $this->setValidators(array(
+        'body'      => new sfValidatorString(),
+      ));    
+
+    $this->embedForm('Commenter', new CommenterForm($this->getObject()->getCommenter())); 
+
+    $this->widgetSchema->setLabel('body', 'Your Comment');
+      
+    $this->widgetSchema->setNameFormat('comment[%s]');
+  }
+
 }

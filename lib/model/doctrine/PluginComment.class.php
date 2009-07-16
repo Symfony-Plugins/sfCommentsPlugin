@@ -40,18 +40,19 @@ abstract class PluginComment extends BaseComment
     $event = new sfEvent($this, 'commentable.add_commentable_class');
 
     $dispatcher->notify($event);
+    
+    $commentables = $event->getReturnValue();
 
-    return $event->getReturnValue();
+    return $commentables ? $commentables : array();
   }
-  
-  // Set every record as a root node
-  public function preSave($event)
+
+  public function preInsert($event)
   {
-    if (!$this['lft'] && !$this['rgt']) 
+    $approvedByDefault = false;
+    if ($approvedByDefault) 
     {
-      $this['lft'] = 1;
-      $this['rgt'] = 2;
-      $this['level'] = 0;
+      $this['approved'] = true;
+      $this['approved_at'] = date("Y-m-d");
     }
   }
 

@@ -9,4 +9,9 @@
  */
 abstract class PluginCommenterForm extends BaseCommenterForm
 {
+  public function configure()
+  {
+    parent::configure();
+    $this->validatorSchema['email'] = new sfValidatorEmail(array('required' => false));
+  }
 }

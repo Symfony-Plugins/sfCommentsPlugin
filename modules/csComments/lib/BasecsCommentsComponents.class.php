@@ -3,22 +3,13 @@ class BasecsCommentsComponents extends sfComponents
 {
   public function executeThread()
   {
-    $this->comments = $this->record->getComments();
+    $this->comments = $this->record->getCommentThread();
   }
   
   public function executeAdd_comment()
   {
     try
     {
-      $userFormClass = $this->record->getCommentUserFormClass();
-      if(sfContext::getInstance()->getRequest()->hasParameter($userFormClass))
-      {
-        $this->userForm = sfContext::getInstance()->getRequest()->getParameter($userFormClass);
-      } 
-      else
-      {
-        $this->userForm = new $userFormClass();
-      }
       $commentFormClass = $this->record->getCommentFormClass();
       if(sfContext::getInstance()->getRequest()->hasParameter($commentFormClass))
       {

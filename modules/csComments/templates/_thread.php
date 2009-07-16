@@ -1,6 +1,6 @@
 <div class="comments_thread" id="<?php echo strtolower(get_class($record)); ?>_comments_thread_<?php echo $record->getId(); ?>">
   <h3>
-    Comments (<?php echo $comments ? ($comments->count() - 1):0; ?>) 
+    Comments (<?php echo $record->getNumComments() ?>) 
     <?php echo link_to_add_new_comment('Add New Comment', $record); ?>
   </h3>
   

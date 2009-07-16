@@ -10,9 +10,15 @@
  */
 class BasecsCommentsActions extends sfActions
 {
-  public function executeAdd()
+  /**
+   * displays the form to add a comment
+   *
+   * @return void
+   * @author Brent Shaffer
+   */
+  public function executeAdd(sfWebRequest $request)
   {
-    $record = Doctrine::getTable($this->getRequestParameter('model'))->findOneById($this->getRequestParameter('record_id'));
+    $record = Doctrine::getTable($request->getParameter('model'))->find($request->getParameter('record_id'));
     return $this->renderComponent('csComments', 'add_comment', array('record' => $record));
   }
 
@@ -23,44 +29,33 @@ class BasecsCommentsActions extends sfActions
    * @return void
    */
   public function executeDoAdd(sfWebRequest $request)
-  {
-    $model = $this->getRequestParameter('model');
+  {  
+    // Pull associated model
+    $record_id = $request->getParameter('record_id');
+    $model = $request->getParameter('model');
+    $this->record = Doctrine::getTable($model)->find($record_id);
 
-    $record_id = $this->getRequestParameter('record_id');
+    $commentForm = new CommentForm();
+    $commentForm->bind($request->getParameter('comment'));
 
-    $record = Doctrine::getTable($model)->find($record_id);
+    // return bound form with errors if form is invalid
+    if(!$commentForm->isValid())
+    {
+      return $this->renderPartial('csComments/add_comment', 
+          array('commentForm' => $commentForm));
+    }
 
-    $commentForm = new DefaultCommentForm();
-    $commentForm->bind($this->getRequestParameter('comment'));
+    // save the object
+    $commentForm->save();
     
-    if($commentForm->isValid())
-    {
-      $commentForm->save();
-      $comment = $commentForm->getObject();
-      if(!$this->addUser($comment, $record))
-      {
-        $this->getRequest()->setParameter('form', $this->form);
-        $this->getUser()->setFlash('notice', 'Please enter a valid E-mail address');
-        $this->redirect($this->getRequestParameter('return_uri'));
-      }
-
-      $comment_id = $this->getRequestParameter('comment_id');
-      $record->addComment($comment, $comment_id);
-      $record->save();
-    }
-    else
-    {
-      $this->getRequest()->setParameter('form', $this->form);
-      $this->getUser()->setFlash('notice', 'Please enter a valid E-mail address');
-      $this->redirect($this->getRequestParameter('return_uri'));
-    }
-    $this->getUser()->setFlash('notice', $this->getAddMessage());
-    $this->redirect($this->getRequestParameter('return_uri').'#comment_'.$comment->getId());
+    $this->comment = $commentForm->getObject();
+    
+    // Pass parent comment id if comment is nested
+    $parent_id = $this->getRequestParameter('comment_id');
+    $this->record->addComment($this->comment, $parent_id);
+    $this->record->save();
   }
-  public function getAddMessage()
-  {
-    return 'Your comment was successfully added!';
-  }
+  
   /**
    * handleErrorDo_add_new_comment 
    * 
@@ -74,28 +69,6 @@ class BasecsCommentsActions extends sfActions
     $name = $this->getRequestParameter('comment_id') ? '#comment_'.$this->getRequestParameter('comment_id'):'#comments';
 
     $this->redirect($this->getRequestParameter('return_uri').$name);
-  }
-  
-  public function addUser($comment, $record)
-  {
-    if($params = $this->getRequestParameter('commenter'))
-    {
-      $formClass = $record->getCommentUserFormClass();
-      $this->form = new $formClass();
-      $this->form->bind($params);
-      if($this->form->isValid())
-      {
-        if($this->isEmpty($this->form))
-        {
-          return sfConfig::get('app_comments_AllowAnonymous');
-        }
-        $tableMethod = $record->getTable()->getCommentUserTableMethod();
-        $record->getTable()->$tableMethod($comment, $this->form);
-        return true;
-      }
-      return false;
-    }
-    return true;
   }
 
   /**

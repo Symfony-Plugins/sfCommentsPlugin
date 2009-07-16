@@ -1,8 +1,6 @@
 <?php use_helper('Date'); ?>
 
-<?php $level = ($comment->getNode()->getLevel() - 1); ?>
-
-<li class="comment_row" style="margin-left: <?php echo ($level * 20); ?>px;">
+<li class="comment_row">
   <a name="comment_<?php echo $comment->getId(); ?>"></a>
   
   <div id="comment_content">
@@ -16,16 +14,16 @@
     </div>
   
     <div id="links">
-
-        <?php echo link_to_edit_comment('Edit', $record, $comment); ?> | 
-        <?php echo link_to_delete_comment('Delete', $record, $comment); ?> | 
-
-      
-        <?php echo link_to_add_new_comment('Reply', $record, $comment); ?>
-
+      <?php echo link_to_edit_comment('Edit', $record, $comment); ?> | 
+      <?php echo link_to_delete_comment('Delete', $record, $comment); ?> | 
+      <?php echo link_to_add_new_comment('Reply', $record, $comment); ?>
     </div>
 
     <div id="add_new_comment_form_holder_<?php echo $comment->getId(); ?>"></div>
+    
+    <?php if ($comment->getNode()->hasChildren()): ?>
+      <?php echo get_partial('csComments/comments', array('comments' => $comment->getNode()->getChildren(), 'record' => $record)); ?>
+    <?php endif ?>
   </div>
 
   <br/>

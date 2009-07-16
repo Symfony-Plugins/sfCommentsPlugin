@@ -23,12 +23,12 @@ class Doctrine_Template_Commentable extends Doctrine_Template
 
   public function getCommentUserFormClass()
   {
-    return 'DefaultCommenterForm';
+    return 'CommenterForm';
   }
   
   public function getCommentFormClass()
   {
-    return 'DefaultCommentForm';
+    return 'CommentForm';
   }
   
   public function addComment($comment, $parent_id = null)
@@ -39,19 +39,33 @@ class Doctrine_Template_Commentable extends Doctrine_Template
     {
       $object->save();
     }
-
+    
+    // if comment is nested, add it as a child of the parent comment
     if ($parent_id) 
     {
       $parent = Doctrine::getTable('Comment')->find($parent_id);
+      if (!$parent->getNode()->isValidNode()) 
+      {
+        Doctrine::getTable('Comment')->getTree()->createRoot($parent);
+      }
       $parent->getNode()->addChild($comment);
     }
     
     $object['Comments'][] = $comment;
   }
   
-  public function getCommentThread($root_id)
+  public function getCommentThread()
   {
-    return Doctrine::getTable('Comment')->getTree()->fetchBranch($root_id);  
+    $object = $this->getInvoker();
+    $comments = new Doctrine_Collection('Comment');
+    foreach ($object['Comments'] as $comment) 
+    {
+      if ($comment['level'] == 0) 
+      {
+        $comments[] = $comment;
+      }
+    }
+    return $comments;
   }
 
   public function addCommentFromArray($commentArr)
@@ -66,7 +80,15 @@ class Doctrine_Template_Commentable extends Doctrine_Template
   public function getNumComments()
   {
     $object = $this->getInvoker();
-    return $object['Comments']->count();
+    $count = 0;
+    foreach ($object['Comments'] as $comment) 
+    {
+      if ($comment->isApproved()) 
+      {
+        $count++;
+      }
+    }
+    return $count;
   }
 
   public function setUp()
