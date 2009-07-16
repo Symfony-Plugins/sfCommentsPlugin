@@ -9,10 +9,16 @@
  */
 class DefaultCommentForm extends BaseCommentForm
 {
-	public function configure()
+  public function configure()
   {
-		parent::configure();
-		unset($this['created_at'], $this['updated_at'], $this['approved'], $this['approved_at'], $this['approved_by'], $this['lft'], $this['rgt'], $this['level'], $this['object_id'], $this['object_class'], $this['user_id']);
-		$this->widgetSchema->setLabel('body', 'Your Comment');
+    $this->setWidgets(array(
+        'body'      => new sfWidgetFormTextarea(),
+      ));
+
+    $this->widgetSchema->setLabel('body', 'Your Comment');
+    
+    $this->setValidators(array(
+        'body'      => new sfValidatorString(),
+      ));
   }
 }

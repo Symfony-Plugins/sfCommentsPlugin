@@ -3,16 +3,9 @@ class BasecsCommentsComponents extends sfComponents
 {
   public function executeThread()
   {
-    $treeMgr = Doctrine::getTable('Comment')->getTree();
-    // $root = $treeMgr->findRoot($this->record->getId());
-    
-    // $this->comments = null;
-    
-    // if( $root && $root->getId() )
-    // {
-      $this->comments = $treeMgr->fetchBranch($this->record->getCommentRootId());
-    // }
+    $this->comments = $this->record->getComments();
   }
+  
   public function executeAdd_comment()
   {
     try

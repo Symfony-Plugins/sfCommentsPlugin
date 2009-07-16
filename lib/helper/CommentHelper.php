@@ -34,7 +34,7 @@ function link_to_delete_comment($name, $record, $comment)
 }
 
 
-function get_doctrine_comments($record)
+function get_comments($record)
 {
   sfContext::getInstance()->getResponse()->addStylesheet('/sfDoctrineCommentsPlugin/css/comments.css');
   

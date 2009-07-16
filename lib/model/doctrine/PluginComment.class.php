@@ -5,42 +5,69 @@
  */
 abstract class PluginComment extends BaseComment
 {
- protected $_commentables = array();
+  // Temporary function, commenter relationships not yet implemented
+  public function hasCommenter()
+  {
+    return false;
+  }
 
- public function hasCommenter()
- {
-   return ((string)$this['Commenter'] != null && (string)$this['Commenter'] != '');
- }
- 
- public function setTableDefinition()
- {
-   // Inexusable hack for creating dynamic relationships on Comment class
-   foreach ($this->getCommentables() as $class) 
-   {
+  // ===================================
+  // = Options for Approving a Comment =
+  // ===================================
+  public function approve()
+  { 
+    $this->setApproved(true);
+    $this->setApprovedAt(date('Y-m-d'));
+    $this->save();
+  }
+  
+  public function unapprove()
+  {
+   $this->setApproved(false);
+   $this->setApprovedAt(null);
+   $this->save();
+  }
+
+  public function isApproved()
+  {
+    return $this->getApproved();
+  }
+
+  // Get all modules acting as Commentable
+  public function getCommentables()
+  {
+    $dispatcher = ProjectConfiguration::getActive()->getEventDispatcher();
+    $event = new sfEvent($this, 'commentable.add_commentable_class');
+
+    $dispatcher->notify($event);
+
+    return $event->getReturnValue();
+  }
+  
+  // Set every record as a root node
+  public function preSave($event)
+  {
+    if (!$this['lft'] && !$this['rgt']) 
+    {
+      $this['lft'] = 1;
+      $this['rgt'] = 2;
+      $this['level'] = 0;
+    }
+  }
+
+  public function setTableDefinition()
+  {
+    // Add all the Commentable relations
+    foreach ($this->getCommentables() as $class) 
+    {
      $this->hasMany($class, array('refClass' => $class.'Comment',
                                                 'local' => 'comment_id',
                                                 'foreign' => 'id'));
 
      $this->hasOne($class.'Comment', array('local' => 'id',
                                   'foreign' => 'comment_id'));
-   }
-   
-   return parent::setTableDefinition();
- }
- 
- // Get all modules acting as Commentable
- public function getCommentables()
- {
-   $dispatcher = ProjectConfiguration::getActive()->getEventDispatcher();
-   $event = new sfEvent($this, 'commentable.add_commentable_class');
-   
-   $dispatcher->notify($event);
-   
-   return $event->getReturnValue();
- }
- 
- public function addCommentable(sfEvent $event)
- {
-   $this->_commentables[] = $event['commentable'];
- }
+    }
+
+    return parent::setTableDefinition();
+  }
 }

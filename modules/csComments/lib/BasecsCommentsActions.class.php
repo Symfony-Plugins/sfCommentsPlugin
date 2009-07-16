@@ -12,7 +12,8 @@ class BasecsCommentsActions extends sfActions
 {
   public function executeAdd()
   {
-    return $this->renderComponent('csComments', 'add_comment');
+    $record = Doctrine::getTable($this->getRequestParameter('model'))->findOneById($this->getRequestParameter('record_id'));
+    return $this->renderComponent('csComments', 'add_comment', array('record' => $record));
   }
 
   /**

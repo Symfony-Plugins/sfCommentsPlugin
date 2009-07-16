@@ -14,6 +14,20 @@ class CommentFormGenerator extends sfDoctrineFormGenerator
     return array('NewsComment');
   }    
 
+  public function setUp()
+  {
+    // generate this form
+    $generatorManager = new sfGeneratorManager(ProjectConfiguration::getApplicationConfiguration('backend', 'dev', true));
+    $generatorManager->generate('sfDoctrineFormGenerator', array(
+        'connection'     => 'doctrine',
+        'model_dir_name' => 'model',
+        'form_dir_name'  => 'form',
+    ));
+    $generator = new CommentFormGenerator($generatorManager);
+    $generator->generate(array('connection' => 'doctrine'));
+    
+  }
+
   /**
    * Generates classes and templates in cache.
    *

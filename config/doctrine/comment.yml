@@ -10,9 +10,12 @@ Comment:
       type: integer
       primary: true
       autoincrement: true
-    subject:
-      type:     string(255)
     body:
       type:     clob
+    approved:
+      type:     boolean
+      default:  false
+    approved_at:
+      type:     timestamp
     user_id:
       type:     integer
